@@ -42,7 +42,7 @@ async def create_book(book: Book):
 
 
 @router.get(
-    "/api/v1/", response_model=OrderedDict[int, Book], status_code=status.HTTP_200_OK
+    "/", response_model=OrderedDict[int, Book], status_code=status.HTTP_200_OK
 )
 async def get_books() -> OrderedDict[int, Book]:
     return db.get_books()
@@ -62,7 +62,7 @@ async def delete_book(book_id: int) -> None:
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=None)
 
 @router.get("/{book_id}", response_model=Book, status_code=status.HTTP_200_OK)
-async def get_book(book_id) -> Book:
+async def get_book(book_id: int) -> Book:
     try:
         return db.get_book(book_id)
     except KeyError:

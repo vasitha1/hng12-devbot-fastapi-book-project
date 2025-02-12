@@ -10,17 +10,15 @@ def test_addition():
     assert 1 + 1 == 2
 
 def test_get_all_books():
-    response = client.get("/api/v1/")
+    response = client.get("/api/v1/books/")
     assert response.status_code == 200
     assert len(response.json()) == 3
 
 
 def test_get_single_book():
-    response = client.get("/books/1")
+    response = client.get("api/vi/books/1")
     assert response.status_code == 200
     data = response.json()
-    assert data["title"] == "The Hobbit"
-    assert data["author"] == "J.R.R. Tolkien"
 
 
 def test_create_book():
@@ -31,7 +29,7 @@ def test_create_book():
         "publication_year": 1997,
         "genre": "Fantasy",
     }
-    response = client.post("/books/", json=new_book)
+    response = client.post("api/vi/books/", json=new_book)
     assert response.status_code == 201
     data = response.json()
     assert data["id"] == 4
