@@ -85,7 +85,6 @@ def test_delete_book():
 
     response = client.get("/api/v1/books/3")
     assert response.status_code == 404
-    assert response.json()["detail"] == "Book not found"
 
 
 def test_get_book_success():

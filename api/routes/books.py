@@ -1,9 +1,9 @@
-from typing import OrderedDict
+from typing import OrderedDict, Union
 
 from fastapi import APIRouter, status, HTTPException
 from fastapi.responses import JSONResponse
 
-from api.db.schemas import Book, Genre, InMemoryDB
+from api.db.schemas import Book, Genre, InMemoryDB, ErrorResponse
 
 router = APIRouter()
 
@@ -61,8 +61,8 @@ async def delete_book(book_id: int) -> None:
     db.delete_book(book_id)
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=None)
 
-@router.get("/{book_id}", response_model=Book, status_code=status.HTTP_200_OK)
-async def get_book(book_id: int) -> Book:
+@router.get("/{book_id}", status_code=status.HTTP_200_OK)
+async def get_book(book_id: int):
     try:
         return db.get_book(book_id)
     except KeyError:
