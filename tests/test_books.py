@@ -50,3 +50,28 @@ def test_delete_book():
 
     response = client.get("/books/3")
     assert response.status_code == 404
+
+ Add these tests to your existing test file
+
+def test_get_book_success():
+    """Test successfully getting a book by ID"""
+    response = client.get("/books/1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == 1
+    assert data["title"] == "The Hobbit"
+    assert data["author"] == "J.R.R. Tolkien"
+    assert data["publication_year"] == 1937
+    assert data["genre"] == "SCI_FI"
+
+def test_get_book_not_found():
+    """Test getting a non-existent book"""
+    response = client.get("/books/999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Book not found"
+
+def test_get_book_invalid_id():
+    """Test getting a book with invalid ID type"""
+    response = client.get("/books/invalid")
+    assert response.status_code == 422  # FastAPI validation error for invalid type
+
