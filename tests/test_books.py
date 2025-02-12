@@ -1,8 +1,16 @@
 from tests import client
+import pytest
+from fastapi import status
+from fastapi.testclient import TestClient
+from main import app
 
+client = TestClient(app)
+
+def test_addition():
+    assert 1 + 1 == 2
 
 def test_get_all_books():
-    response = client.get("/books/")
+    response = client.get("/api/v1/")
     assert response.status_code == 200
     assert len(response.json()) == 3
 
@@ -51,7 +59,6 @@ def test_delete_book():
     response = client.get("/books/3")
     assert response.status_code == 404
 
- Add these tests to your existing test file
 
 def test_get_book_success():
     """Test successfully getting a book by ID"""
@@ -74,4 +81,28 @@ def test_get_book_invalid_id():
     """Test getting a book with invalid ID type"""
     response = client.get("/books/invalid")
     assert response.status_code == 422  # FastAPI validation error for invalid type
+
+@pytest.mark.parametrize(
+    "book_id,expected_data", [
+        (1, {
+            "title": "The Hobbit",
+            "author": "J.R.R. Tolkien",
+            "publication_year": 1937,
+            "genre": "SCI_FI"
+        }),
+        (2, {
+            "title": "The Lord of the Rings",
+            "author": "J.R.R. Tolkien",
+            "publication_year": 1954,
+            "genre": "FANTASY"
+        })
+    ]
+)
+def test_get_book_returns_correct_data(book_id, expected_data):
+    """Parametrized test to verify correct book data is returned"""
+    response = client.get(f"/books/{book_id}")
+    assert response.status_code == 200
+    data = response.json()
+    for key, value in expected_data.items():
+        assert data[key] == value
 
