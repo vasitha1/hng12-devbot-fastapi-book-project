@@ -1,4 +1,4 @@
-name: CD
+name: CD Pipeline
 
 on:
   push:
@@ -10,8 +10,8 @@ jobs:
 
     steps:
       - name: Checkout code
-      - uses: actions/checkout@v3
-      
+        uses: actions/checkout@v3
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -22,5 +22,5 @@ jobs:
             cd /home/ubuntu/fastapi-book-project
             git pull origin main
             source venv/bin/activate
-            pip install -r requirements.txt
-            sudo systemctl restart fastapi
+            pip install --default-timeout=100 -r requirements.txt
+
