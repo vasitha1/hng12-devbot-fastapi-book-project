@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a RESTful API built with FastAPI for managing a book collection. It provides comprehensive CRUD (Create, Read, Update, Delete) operations for books with proper error handling, input validation, and documentation. It id deeployed on a server using nginx
+This project is a RESTful API built with FastAPI for managing a book collection. It provides comprehensive CRUD (Create, Read, Update, Delete) operations for books with proper error handling, input validation, and documentation. It id deployed on a server using nginx as reverse proxy.
 
 ## Features
 
