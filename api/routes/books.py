@@ -1,3 +1,7 @@
+"""
+This module describes the endpoints
+"""
+
 from typing import OrderedDict, Union
 
 from fastapi import APIRouter, status, HTTPException
