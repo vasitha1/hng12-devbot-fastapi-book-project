@@ -62,6 +62,9 @@ class InMemoryDB:
             Book: Book.
         """
         return self.books.get(book_id)
+        if book is None:
+            raise KeyError(f"Book not found")
+        return book
 
     def update_book(self, book_id: int, data: Book) -> Book:
         """Updates a specific book in database.
@@ -82,8 +85,9 @@ class InMemoryDB:
         Args:
             book_id (int): Book ID.
         """
-        if book_id in self.books:
-            del self.books[book_id]
+        if book_id not in self.books:
+            raise KeyError(f"Book not found")
+        del self.books[book_id]
 
 class ErrorResponse(BaseModel):
     detail: str

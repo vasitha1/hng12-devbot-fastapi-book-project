@@ -35,9 +35,6 @@ def reset_db():
         ),
     }
 
-def test_addition():
-    assert 1 + 1 == 2
-
 def test_get_all_books():
     response = client.get("/api/v1/books/")
     assert response.status_code == 200
