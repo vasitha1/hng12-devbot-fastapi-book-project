@@ -19,13 +19,4 @@ jobs:
             git pull origin main
             source venv/bin/activate
             pip install --default-timeout=100 -r requirements.txt
-
-            # Kill existing Gunicorn process if running
-            if [ -f gunicorn.pid ]; then
-              kill -TERM $(cat gunicorn.pid) || true
-              rm gunicorn.pid
-            fi
-            # Start Gunicorn in the background
-            gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --pid gunicorn.pid --daemon --access-logfile access.log --error-logfile error.log
-            # Reload nginx
             sudo systemctl reload nginx
