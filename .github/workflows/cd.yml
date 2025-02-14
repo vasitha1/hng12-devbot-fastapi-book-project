@@ -20,44 +20,5 @@ jobs:
             # Pull latest changes
             git pull origin main
             source venv/bin/activate
-            pip install --default-timeout=100 -r requirements.txt
-            
-            # Stop any running processes
-            pkill -f "gunicorn" || true
-            pkill -f "uvicorn" || true
-            sleep 2
-            
-            # Create a systemd service file
-            sudo tee /etc/systemd/system/fastapi.service << EOF
-            [Unit]
-            Description=FastAPI application
-            After=network.target
-
-            [Service]
-            User=ubuntu
-            Group=ubuntu
-            WorkingDirectory=/home/ubuntu/fastapi-book-project
-            Environment="PATH=/home/ubuntu/fastapi-book-project/venv/bin"
-            ExecStart=/home/ubuntu/fastapi-book-project/venv/bin/gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --timeout 120
-            Restart=always
-
-            [Install]
-            WantedBy=multi-user.target
-            EOF
-            
-            # Reload systemd and restart service
-            sudo systemctl daemon-reload
-            sudo systemctl enable fastapi
-            sudo systemctl restart fastapi
-            
-            # Wait for service to start
-            sleep 5
-            
-            # Check service status
-            sudo systemctl status fastapi --no-pager
-            
-            # Test the endpoint
-            curl -s http://localhost:8000/stage2 || echo "Stage2 endpoint not available"
-            
-            # Reload nginx
+            pip install --default-timeout=100 -r requirements.txt:
             sudo systemctl reload nginx
