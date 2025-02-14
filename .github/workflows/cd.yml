@@ -16,26 +16,36 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/fastapi-book-project
+            
             # Pull latest changes
             git pull origin main
             source venv/bin/activate
             pip install --default-timeout=100 -r requirements.txt
             
-            # Force stop any running processes
-            pkill -9 -f "gunicorn" || true
-            pkill -9 -f "uvicorn" || true
+            # Find and gracefully stop the old process
+            OLD_PID=$(ps aux | grep '[g]unicorn' | awk '{print $2}')
+            if [ ! -z "$OLD_PID" ]; then
+              echo "Stopping old process $OLD_PID"
+              kill -TERM $OLD_PID || true
+              sleep 5
+            fi
             
-            # Small delay to ensure processes are fully stopped
-            sleep 2
+            # Start gunicorn with reduced workers and timeout
+            gunicorn main:app \
+              -w 2 \
+              -k uvicorn.workers.UvicornWorker \
+              -b 0.0.0.0:8000 \
+              --timeout 120 \
+              --access-logfile gunicorn-access.log \
+              --error-logfile gunicorn-error.log \
+              --log-level info \
+              --daemon
             
-            # Start the application with Gunicorn
-            nohup gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --access-logfile access.log --error-logfile error.log --daemon &
-            
-            # Wait for application to start
+            # Wait for new process to start
             sleep 5
             
-            # Verify the application is running
-            curl -s http://localhost:8000/healthcheck || echo "Application failed to start"
+            # Verify the application is running and serving the stage2 endpoint
+            curl -s http://localhost:8000/stage2 || echo "Stage2 endpoint not available"
             
             # Reload nginx
             sudo systemctl reload nginx
