@@ -19,9 +19,13 @@ jobs:
             git pull origin main
             source venv/bin/activate
             pip install --default-timeout=100 -r requirements.txt
-            # Find and kill the existing uvicorn process
-            pkill -f "uvicorn main:app" || true
-            # Start uvicorn in the background with nohup
-            nohup uvicorn main:app --host 0.0.0.0 --port 8000 > nohup.out 2>&1 &
-            # Optional: Reload nginx in case of any config changes
+
+            # Kill existing Gunicorn process if running
+            if [ -f gunicorn.pid ]; then
+              kill -TERM $(cat gunicorn.pid) || true
+              rm gunicorn.pid
+            fi
+            # Start Gunicorn in the background
+            gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --pid gunicorn.pid --daemon --access-logfile access.log --error-logfile error.log
+            # Reload nginx
             sudo systemctl reload nginx
