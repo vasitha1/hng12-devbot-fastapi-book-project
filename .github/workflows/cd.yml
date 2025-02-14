@@ -22,29 +22,41 @@ jobs:
             source venv/bin/activate
             pip install --default-timeout=100 -r requirements.txt
             
-            # Find and gracefully stop the old process
-            OLD_PID=$(ps aux | grep '[g]unicorn' | awk '{print $2}')
-            if [ ! -z "$OLD_PID" ]; then
-              echo "Stopping old process $OLD_PID"
-              kill -TERM $OLD_PID || true
-              sleep 5
-            fi
+            # Stop any running processes
+            pkill -f "gunicorn" || true
+            pkill -f "uvicorn" || true
+            sleep 2
             
-            # Start gunicorn with reduced workers and timeout
-            gunicorn main:app \
-              -w 2 \
-              -k uvicorn.workers.UvicornWorker \
-              -b 0.0.0.0:8000 \
-              --timeout 120 \
-              --access-logfile gunicorn-access.log \
-              --error-logfile gunicorn-error.log \
-              --log-level info \
-              --daemon
+            # Create a systemd service file
+            sudo tee /etc/systemd/system/fastapi.service << EOF
+            [Unit]
+            Description=FastAPI application
+            After=network.target
+
+            [Service]
+            User=ubuntu
+            Group=ubuntu
+            WorkingDirectory=/home/ubuntu/fastapi-book-project
+            Environment="PATH=/home/ubuntu/fastapi-book-project/venv/bin"
+            ExecStart=/home/ubuntu/fastapi-book-project/venv/bin/gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --timeout 120
+            Restart=always
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
             
-            # Wait for new process to start
+            # Reload systemd and restart service
+            sudo systemctl daemon-reload
+            sudo systemctl enable fastapi
+            sudo systemctl restart fastapi
+            
+            # Wait for service to start
             sleep 5
             
-            # Verify the application is running and serving the stage2 endpoint
+            # Check service status
+            sudo systemctl status fastapi --no-pager
+            
+            # Test the endpoint
             curl -s http://localhost:8000/stage2 || echo "Stage2 endpoint not available"
             
             # Reload nginx
