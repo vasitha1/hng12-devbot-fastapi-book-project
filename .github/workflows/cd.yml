@@ -16,16 +16,26 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/fastapi-book-project
+            # Pull latest changes
             git pull origin main
             source venv/bin/activate
             pip install --default-timeout=100 -r requirements.txt
-
-            # Kill existing Gunicorn process if running
-            if [ -f gunicorn.pid ]; then
-              kill -TERM $(cat gunicorn.pid) || true
-              rm gunicorn.pid
-            fi
-            # Start Gunicorn in the background
-            gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --pid gunicorn.pid --daemon --access-logfile access.log --error-logfile error.log
+            
+            # Force stop any running processes
+            pkill -9 -f "gunicorn" || true
+            pkill -9 -f "uvicorn" || true
+            
+            # Small delay to ensure processes are fully stopped
+            sleep 2
+            
+            # Start the application with Gunicorn
+            nohup gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --access-logfile access.log --error-logfile error.log --daemon &
+            
+            # Wait for application to start
+            sleep 5
+            
+            # Verify the application is running
+            curl -s http://localhost:8000/healthcheck || echo "Application failed to start"
+            
             # Reload nginx
             sudo systemctl reload nginx
