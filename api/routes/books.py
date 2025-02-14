@@ -39,8 +39,8 @@ db.books = {
 
 @router.get("/{book_id}", status_code=status.HTTP_200_OK)
 
+
 async def get_book(book_id: int):
-    print(f"Received request for book_id: {book_id}")
     try:
 
         book = db.get_book(book_id)
@@ -60,8 +60,6 @@ async def get_book(book_id: int):
             detail="Book not found"
 
         )
-
-
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_book(book: Book):
@@ -96,4 +94,3 @@ async def delete_book(book_id: int) -> None:
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Book not found"
         )
-
