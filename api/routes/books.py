@@ -38,16 +38,27 @@ db.books = {
 
 
 @router.get("/{book_id}", status_code=status.HTTP_200_OK)
+
+
 async def get_book(book_id: int):
     try:
+
         book = db.get_book(book_id)
+
         if book is None:  # Additional check in case get_book returns None
+
             raise KeyError()
+
         return book
+
     except KeyError:
+
         raise HTTPException(
+
             status_code=status.HTTP_404_NOT_FOUND,
+
             detail="Book not found"
+
         )
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
