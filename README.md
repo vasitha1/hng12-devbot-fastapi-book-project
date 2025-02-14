@@ -146,4 +146,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For support, please open an issue in the GitHub repository.
 ## Deployment
 Deployed on a virtual server with nginx as revers proxy.
-http://vasithayong.tech/docs#/books/get_books_api_v1_books__get:
+http://vasithayong.tech/
