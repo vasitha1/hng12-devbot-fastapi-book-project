@@ -23,4 +23,7 @@ jobs:
             git pull origin main
             source venv/bin/activate
             pip install --default-timeout=100 -r requirements.txt
-
+            pkill -f "uvicorn main:app" || true
+            nohup uvicorn main:app --host 0.0.0.0 --port 8000 > nohup.out 2>&1 &
+            # Optional: Reload nginx in case of any config changes
+            sudo systemctl reload nginx
